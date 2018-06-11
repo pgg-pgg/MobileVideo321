@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+    <com.example.pgg.mobilevideo321.widget.TabBar_Main
+        android:id="@+id/rb_video"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:visibility="visible"
+        app:icon="@drawable/rb_video_drawable_selector"
+        app:name="@string/video"/>
+    <com.example.pgg.mobilevideo321.widget.TabBar_Main
+        android:id="@+id/rb_audio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:icon="@drawable/rb_audio_drawable_selector"
+        app:name="@string/audio"/>
+
+    <com.example.pgg.mobilevideo321.widget.TabBar_Main
+        android:id="@+id/rb_net_video"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:icon="@drawable/rb_net_video_drawable_selector"
+        app:name="@string/net_video">
+    </com.example.pgg.mobilevideo321.widget.TabBar_Main>
+
+    <com.example.pgg.mobilevideo321.widget.TabBar_Main
+        android:id="@+id/rb_net_audio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:icon="@drawable/rb_netaudio_drawable_selector"
+        app:name="@string/net_audio">
+
+    </com.example.pgg.mobilevideo321.widget.TabBar_Main>
+
+</LinearLayout>

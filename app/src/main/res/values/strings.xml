@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">321影音</string>
+    <string name="logining">正在启动...</string>
+    <string name="net_video">网络视频</string>
+    <string name="audio">本地音乐</string>
+    <string name="net_audio">网络音乐</string>
+    <string name="video">本地视频</string>
+    <string name="top_search">全网搜索</string>
+    <string name="empty_no_data">没有加载到数据</string>
+    <string name="empty_network_error">网络错误,请点击重试...</string>
+    <string name="loading">正在加载...</string>
+    <string name="text_web_ceo">视频/豆瓣高分</string>
+    <string name="text_web_dev">每个人都值得被记录</string>
+    <string name="text_e_commerce">享受世界的美好瞬间</string>
+    <string name="cancel">取消</string>
+    <string name="imtrue">确定</string>
+</resources>
