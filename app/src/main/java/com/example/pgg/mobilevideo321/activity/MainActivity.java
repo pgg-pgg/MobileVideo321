@@ -166,7 +166,7 @@ public class MainActivity extends BaseActivity {
         }
         if (videoFragment==null){
             Logger.e("恢复状态："+"null");
-            videoFragment=new VideoFragment().newInstance(this);
+            videoFragment=new VideoFragment().newInstance();
             addFragment(R.id.fl_main_content,videoFragment,VIDEO_FRAGMENT);
         }else if (isRestart=true){
             isRestart=false;

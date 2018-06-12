@@ -16,6 +16,10 @@
         layout="@layout/empty_view"
         android:visibility="gone"/>
 
+
+    <include android:id="@+id/loading_view"
+        layout="@layout/loading_view"/>
+
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,6 +31,7 @@
         android:src="@drawable/backtop"
         app:borderWidth="0dp"
         app:elevation="6dp"
-        app:pressedTranslationZ="12dp"/>
+        app:pressedTranslationZ="12dp"
+        android:visibility="gone"/>
 
 </RelativeLayout>

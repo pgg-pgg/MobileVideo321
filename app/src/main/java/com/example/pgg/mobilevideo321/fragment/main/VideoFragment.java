@@ -2,22 +2,28 @@ package com.example.pgg.mobilevideo321.fragment.main;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.pgg.mobilevideo321.R;
+import com.example.pgg.mobilevideo321.activity.SystemVideoPlayer;
 import com.example.pgg.mobilevideo321.adapter.VideoFragmentAdapter;
 import com.example.pgg.mobilevideo321.base.BaseFragment;
 import com.example.pgg.mobilevideo321.bean.MediaItem;
 import com.example.pgg.mobilevideo321.global.MyApplication;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,9 +33,8 @@ import butterknife.BindView;
  * Created by pgg on 18-6-11.
  */
 
-public class VideoFragment extends BaseFragment {
+public class VideoFragment extends BaseFragment implements AdapterView.OnItemClickListener {
 
-    private Context context;
     @BindView(R.id.lv_video)
     ListView lv_video;
 
@@ -39,8 +44,10 @@ public class VideoFragment extends BaseFragment {
     @BindView(R.id.fb_video)
     FloatingActionButton fb_video;
 
-    public VideoFragment newInstance(Context context){
-        this.context=context;
+    @BindView(R.id.loading_view)
+    View loading_view;
+
+    public VideoFragment newInstance(){
         VideoFragment fragment=new VideoFragment();
         return fragment;
     }
@@ -62,16 +69,20 @@ public class VideoFragment extends BaseFragment {
                 //获取到数据
                 //设置适配器
                 //empty_view隐藏
+                Log.e("sdadsadsda","获取到数据");
                 empty_view.setVisibility(View.GONE);
-                adapter=new VideoFragmentAdapter(context,mediaItems);
+                fb_video.setVisibility(View.VISIBLE);
+                adapter=new VideoFragmentAdapter(getActivity(),mediaItems);
                 lv_video.setAdapter(adapter);
 
             }else {
                 //没有数据
                 //empty_view显示
+                Log.e("sdadsadsda","未获取到数据");
                 empty_view.setVisibility(View.VISIBLE);
-
+                fb_video.setVisibility(View.GONE);
             }
+            loading_view.setVisibility(View.GONE);
         }
     };
 
@@ -80,6 +91,7 @@ public class VideoFragment extends BaseFragment {
         initFab();
 
         getDataFromLocal();
+        lv_video.setOnItemClickListener(this);
     }
 
     /**
@@ -91,7 +103,7 @@ public class VideoFragment extends BaseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ContentResolver contentResolver = context.getContentResolver();
+                ContentResolver contentResolver = getActivity().getContentResolver();
                 Uri uri= MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 String[] objs={
                         MediaStore.Video.Media.DISPLAY_NAME,//视频文件在sdcard的名称
@@ -141,6 +153,26 @@ public class VideoFragment extends BaseFragment {
 
     @Override
     protected void managerArguments() {
+
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        MediaItem mediaItem = mediaItems.get(position);
+        //1.调用系统所有播放器,隐式意图
+//        Intent intent=new Intent();
+//        intent.setDataAndType(Uri.parse(mediaItem.getData()),"video/*");
+//        getContext().startActivity(intent);
+        //2.调用自己的播放器,显式意图,传递列表
+        Intent intent=new Intent(getActivity(), SystemVideoPlayer.class);
+        Bundle bundle=new Bundle();
+        bundle.putSerializable("mediaItems", (Serializable) mediaItems);
+        intent.putExtras(bundle);
+        intent.putExtra("position",position);
+        getContext().startActivity(intent);
+
+
+
 
     }
 }

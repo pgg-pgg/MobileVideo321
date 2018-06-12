@@ -1,10 +1,12 @@
 package com.example.pgg.mobilevideo321.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by pgg on 18-6-11.
  */
 
-public class MediaItem {
+public class MediaItem implements Serializable{
 
     private String name;
     private long duration;
