@@ -1,5 +1,6 @@
 package com.example.pgg.mobilevideo321.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,12 +8,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.TrafficStats;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -40,6 +42,8 @@ import java.util.Date;
 
 public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
+
+    private boolean isUseSystem=false;
 
     private final static int PROGRESS=1;
     private static final int DEFAULT_SCREEN = 2;
@@ -79,6 +83,15 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
     private int currentVoice;
     private int maxVoice;
     private boolean isMute=false;
+    private boolean isNetUri;
+    private LinearLayout ll_buffer;
+    private TextView tv_netspeed;
+
+    private int preCurrentPosition;
+    private TextView tv_loading_netspeed;
+    private LinearLayout ll_loading;
+    private long lastTotalRxBytes;
+    private long lastTimeStamp;
 
     // End Of Content View Elements
 
@@ -103,6 +116,12 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         mBtn_video_next = (Button) findViewById(R.id.btn_video_next);
         mBtn_video_switch_screen = (Button) findViewById(R.id.btn_video_switch_screen);
 
+        ll_buffer = findViewById(R.id.ll_buffer);
+        tv_netspeed=findViewById(R.id.tv_netspeed);
+
+        tv_loading_netspeed=findViewById(R.id.tv_loading_netspeed);
+        ll_loading=findViewById(R.id.ll_loading);
+
         mBtn_voice.setOnClickListener(this);
         mBtn_switch_player.setOnClickListener(this);
         mBtn_exit.setOnClickListener(this);
@@ -110,6 +129,9 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         mBtn_video_next.setOnClickListener(this);
         mBtn_video_start_pause.setOnClickListener(this);
         mBtn_video_switch_screen.setOnClickListener(this);
+
+        //更新网速
+        handler.sendEmptyMessage(101);
     }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -126,9 +148,11 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         if (mediaItems!=null&&mediaItems.size()>0){
             MediaItem mediaItem=mediaItems.get(position);
             mTv_name.setText(mediaItem.getName());
+            isNetUri= isNetUri(mediaItem.getData());
             video_view.setVideoPath(mediaItem.getData());
         }else if (uri!=null){
             mTv_name.setText(uri.toString());
+            isNetUri= isNetUri(uri.toString());
             video_view.setVideoURI(uri);
         }else {
             Toast.makeText(SystemVideoPlayer.this,"列表暂无视频",Toast.LENGTH_LONG).show();
@@ -310,6 +334,14 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         video_view.setOnCompletionListener(this);
         mSeekbar_video.setOnSeekBarChangeListener(this);
         mSeekbar_voice.setOnSeekBarChangeListener(new VoiceOnSeekBarChangeListener());
+
+        //监听视频播放不流畅
+        if (isUseSystem){
+            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+                video_view.setOnInfoListener(new MyOnInfoListener());
+            }
+        }
+
     }
 
     //当底层解码准备好
@@ -322,9 +354,22 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         mSeekbar_video.setMax(duration);
         mTv_duration.setText(TimeUtils.stringForTime(duration));
 
+        hideMediaController();
+
         handler.sendEmptyMessage(PROGRESS);
 
         setVideoType(DEFAULT_SCREEN);
+
+        ll_loading.setVisibility(View.GONE);
+
+        //监听拖动完成
+        mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(MediaPlayer mp) {
+
+            }
+        });
+
 
     }
 
@@ -393,8 +438,10 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
             //播放下一个
             position--;
             if (position>=0){
+                ll_loading.setVisibility(View.VISIBLE);
                 MediaItem mediaItem = mediaItems.get(position);
                 mTv_name.setText(mediaItem.getName());
+                isNetUri= isNetUri(mediaItem.getData());
                 video_view.setVideoPath(mediaItem.getData());
                 //设置按钮状态
                 setButtonState();
@@ -405,6 +452,9 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         }
     }
 
+    /**
+     * 播放下一个视频
+     */
     private void playNextVideo() {
         if (mediaItems!=null&&mediaItems.size()>0){
             //播放下一个
@@ -412,7 +462,9 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
             if (position<mediaItems.size()){
                 MediaItem mediaItem = mediaItems.get(position);
                 mTv_name.setText(mediaItem.getName());
+                isNetUri= isNetUri(mediaItem.getData());
                 video_view.setVideoPath(mediaItem.getData());
+                ll_loading.setVisibility(View.VISIBLE);
                 //设置按钮状态
                 setButtonState();
             }
@@ -422,6 +474,9 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         }
     }
 
+    /**
+     * 设置播放，上/下键状态
+     */
     private void setButtonState() {
         if (mediaItems!=null&&mediaItems.size()>0){
             if (mediaItems.size()==1){
@@ -460,6 +515,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
                     mBtn_video_next.setEnabled(true);
                 }
             }
+
         }else if (uri!=null){
             mBtn_video_pre.setBackgroundResource(R.drawable.btn_pre_gray);
             mBtn_video_pre.setEnabled(false);
@@ -468,6 +524,8 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         }
     }
 
+
+    @SuppressLint("HandlerLeak")
     private Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -479,11 +537,51 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
                     //每秒更新一次
                     mTv_current_time.setText(TimeUtils.stringForTime(currentPosition));
                     mTv_system_time.setText(getSystemTime());
+
+                    //缓冲进度的更新
+                    if (isNetUri){
+                        //网络视频需要缓冲
+                        int bufferPercentage = video_view.getBufferPercentage();
+                        int totalBuffer=bufferPercentage*mSeekbar_video.getMax();
+                        int secondaryProgress=totalBuffer/100;
+                        mSeekbar_video.setSecondaryProgress(secondaryProgress);
+                    }else {
+                        //本地视频无缓冲效果
+                        mSeekbar_video.setSecondaryProgress(0);
+                    }
+
+                    //监听卡顿
+                    if (!isUseSystem){
+                        if (video_view.isPlaying()){
+                            int buffer=currentPosition-preCurrentPosition;
+                            if (buffer<500){
+                                //卡顿
+                                ll_buffer.setVisibility(View.VISIBLE);
+                            }else {
+                                //流畅
+                                ll_buffer.setVisibility(View.GONE);
+                            }
+                        }else {
+                            ll_buffer.setVisibility(View.GONE);
+                        }
+                    }
+
+                    preCurrentPosition=currentPosition;
                     removeMessages(PROGRESS);
                     sendEmptyMessageDelayed(PROGRESS,1000);
                     break;
                 case 100:
                     hideMediaController();
+                    break;
+
+                case 101:
+                    //显示网速
+                    String netSpeed=getNetSpeed();
+                    tv_loading_netspeed.setText("玩命加载中..."+netSpeed);
+                    tv_netspeed.setText("视频缓冲中..."+netSpeed);
+
+                    removeMessages(101);
+                    sendEmptyMessageDelayed(101,2000);
                     break;
             }
         }
@@ -515,6 +613,9 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         handler.sendEmptyMessageDelayed(100,4000);
     }
 
+    /**
+     * 声音seekbar监听
+     */
     private class VoiceOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
 
         @Override
@@ -540,6 +641,11 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         }
     }
 
+    /**
+     * 更新音量
+     * @param progress
+     * @param isMute
+     */
     private void updateVoice(int progress,boolean isMute) {
         if (isMute){
             am.setStreamVolume(AudioManager.STREAM_MUSIC,0,0);
@@ -551,6 +657,12 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         }
     }
 
+    /**
+     * 监听音量键
+     * @param keyCode
+     * @param event
+     * @return
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode==KeyEvent.KEYCODE_VOLUME_DOWN){
@@ -568,4 +680,61 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    /**
+     * 判断是否是网络资源
+     * @param uri
+     * @return
+     */
+    public boolean isNetUri(String uri){
+        boolean result=false;
+
+        if (uri!=null){
+            if (uri.toLowerCase().startsWith("http")||
+                    uri.toLowerCase().startsWith("rtsp")
+                    ||uri.toLowerCase().startsWith("mms")){
+                result=true;
+            }
+        }
+        return result;
+    }
+
+
+    private class MyOnInfoListener implements MediaPlayer.OnInfoListener {
+
+        @Override
+        public boolean onInfo(MediaPlayer mp, int what, int extra) {
+            switch (what){
+                case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                    //视频开始卡
+                    ll_buffer.setVisibility(View.VISIBLE);
+                    break;
+                case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                    //缓冲完成
+                    ll_buffer.setVisibility(View.VISIBLE);
+                    break;
+            }
+            return false;
+        }
+    }
+
+
+    /**
+     * 获取网络速度
+     * 每两秒调用一次
+     * @return
+     */
+    private String getNetSpeed(){
+        String netSpeed;
+        long nowTotalRxBytes= TrafficStats.getUidRxBytes(getApplicationInfo().uid)==TrafficStats.UNSUPPORTED?0:(TrafficStats.getTotalRxBytes()/1024);
+        long nowTimeStamp=System.currentTimeMillis();
+        long speed=((nowTotalRxBytes-lastTotalRxBytes)*1000/(nowTimeStamp-lastTimeStamp));
+
+        lastTimeStamp=nowTimeStamp;
+        lastTotalRxBytes=nowTotalRxBytes;
+        netSpeed=String.valueOf(speed)+" kb/s";
+        return netSpeed;
+    }
+
+
 }

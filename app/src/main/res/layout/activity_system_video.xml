@@ -14,4 +14,11 @@
         android:id="@+id/media_controller"
         layout="@layout/media_controller"/>
 
+    <include
+        android:visibility="gone"
+        layout="@layout/buffer_layout"
+        android:id="@+id/ll_buffer"/>
+
+    <include layout="@layout/ll_loading" android:id="@+id/ll_loading"/>
+
 </RelativeLayout>
