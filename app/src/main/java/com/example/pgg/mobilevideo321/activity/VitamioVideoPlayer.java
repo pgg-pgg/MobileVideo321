@@ -97,7 +97,6 @@ public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPrepar
     private long lastTimeStamp;
 
     // End Of Content View Elements
-
     private void bindViews() {
         Vitamio.isInitialized(this);
         setContentView(R.layout.activity_vitamio_video);
