@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
@@ -32,16 +31,19 @@ import com.example.pgg.mobilevideo321.R;
 import com.example.pgg.mobilevideo321.bean.MediaItem;
 import com.example.pgg.mobilevideo321.global.MyApplication;
 import com.example.pgg.mobilevideo321.utils.TimeUtils;
-import com.example.pgg.mobilevideo321.widget.MyVideoView;
+import com.example.pgg.mobilevideo321.widget.MyVitamioVideoView;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.Vitamio;
 
 /**
  * Created by pgg on 18-6-12.
  */
 
-public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
 
     private boolean isUseSystem=false;
@@ -50,7 +52,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
     private static final int DEFAULT_SCREEN = 2;
     private Uri uri;
 
-    private MyVideoView video_view;
+    private MyVitamioVideoView video_view;
     private LinearLayout mLl_top;
     private TextView mTv_name;
     private ImageView mIv_battery;
@@ -97,7 +99,8 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
     // End Of Content View Elements
 
     private void bindViews() {
-        setContentView(R.layout.activity_system_video);
+        Vitamio.isInitialized(this);
+        setContentView(R.layout.activity_vitamio_video);
         mMedia_controller=findViewById(R.id.media_controller);
         video_view=findViewById(R.id.video_view);
         mLl_top = (LinearLayout) findViewById(R.id.ll_top);
@@ -156,7 +159,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
             isNetUri= isNetUri(uri.toString());
             video_view.setVideoURI(uri);
         }else {
-            Toast.makeText(SystemVideoPlayer.this,"列表暂无视频",Toast.LENGTH_LONG).show();
+            Toast.makeText(VitamioVideoPlayer.this,"列表暂无视频",Toast.LENGTH_LONG).show();
         }
         setButtonState();
 
@@ -351,7 +354,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         videoWidth=mp.getVideoWidth();
         videoHeight=mp.getVideoHeight();
         video_view.start();//开始播放
-        int duration=video_view.getDuration();
+        int duration= (int) video_view.getDuration();
         mSeekbar_video.setMax(duration);
         mTv_duration.setText(TimeUtils.stringForTime(duration));
 
@@ -376,30 +379,23 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-//        Toast.makeText(SystemVideoPlayer.this,"播放出错！",Toast.LENGTH_LONG).show();
-        startVitamioPlayer();
-
-        return false;
+        showErrorDialog();
+        return true;
     }
 
-    /**
-     * 把数据完全传递
-     */
-    private void startVitamioPlayer() {
-        if (video_view!=null){
-            video_view.stopPlayback();
-        }
-        Intent intent=new Intent(this, VitamioVideoPlayer.class);
-        if(mediaItems!=null&&mediaItems.size()>0){
-            Bundle bundle=new Bundle();
-            bundle.putSerializable("mediaItems", mediaItems);
-            intent.putExtras(bundle);
-            intent.putExtra("position",position);
-        }else if (uri!=null){
-            intent.setData(uri);
-        }
-        startActivity(intent);
-        finish();
+    private void showErrorDialog() {
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+
+        builder.setTitle("提示");
+        builder.setMessage("抱歉，无法播放此视频");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        builder.show();
+
     }
 
     @Override
@@ -446,16 +442,36 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
 
         builder.setTitle("提示");
-        builder.setMessage("确认使用万能播放器么？");
+        builder.setMessage("确认使用本地播放器么？");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                startVitamioPlayer();
+                startSystemPlayer();
             }
         });
         builder.setNegativeButton("取消",null);
         builder.show();
 
+    }
+
+    /**
+     * 把数据完全传递
+     */
+    private void startSystemPlayer() {
+        if (video_view!=null){
+            video_view.stopPlayback();
+        }
+        Intent intent=new Intent(this, SystemVideoPlayer.class);
+        if(mediaItems!=null&&mediaItems.size()>0){
+            Bundle bundle=new Bundle();
+            bundle.putSerializable("mediaItems", mediaItems);
+            intent.putExtras(bundle);
+            intent.putExtra("position",position);
+        }else if (uri!=null){
+            intent.setData(uri);
+        }
+        startActivity(intent);
+        finish();
     }
 
     private void startOrPause() {
@@ -571,7 +587,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
             super.handleMessage(msg);
             switch (msg.what){
                 case PROGRESS:
-                    int currentPosition=video_view.getCurrentPosition();
+                    int currentPosition= (int) video_view.getCurrentPosition();
                     mSeekbar_video.setProgress(currentPosition);
                     //每秒更新一次
                     mTv_current_time.setText(TimeUtils.stringForTime(currentPosition));

@@ -12,6 +12,14 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:name=".global.MyApplication"
         android:allowBackup="true"
@@ -36,7 +44,7 @@
         <activity android:name=".activity.SystemVideoPlayer"
             android:screenOrientation="landscape"
             android:label="@string/player_name"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:theme="@style/noAnimation_Theme"
             android:configChanges="keyboardHidden|screenSize|orientation">
 
             <intent-filter>
@@ -62,6 +70,20 @@
                 <data android:mimeType="video/3gpp2" />
             </intent-filter>
         </activity>
+
+        <!-- Don't forgot InitActivity -->
+        <activity
+            android:name="io.vov.vitamio.activity.InitActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity android:name=".activity.VitamioVideoPlayer"
+            android:screenOrientation="landscape"
+            android:theme="@style/noAnimation_Theme"
+            android:configChanges="keyboardHidden|screenSize|orientation"/>
 
     </application>
 
