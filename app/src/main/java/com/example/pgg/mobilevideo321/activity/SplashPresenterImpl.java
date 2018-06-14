@@ -1,6 +1,5 @@
 package com.example.pgg.mobilevideo321.activity;
 
-import com.example.pgg.mobilevideo321.activity.SplashActivity;
 import com.example.pgg.mobilevideo321.presenter.SplashInteractor;
 import com.example.pgg.mobilevideo321.presenter.SplashInteractorImpl;
 import com.example.pgg.mobilevideo321.presenter.SplashPresenter;

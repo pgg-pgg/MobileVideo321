@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -96,6 +97,9 @@ public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPrepar
     private long lastTotalRxBytes;
     private long lastTimeStamp;
 
+    private int screenWidth=0;
+    private int screenHeight=0;
+
     // End Of Content View Elements
     private void bindViews() {
         Vitamio.isInitialized(this);
@@ -169,6 +173,12 @@ public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPrepar
         mSeekbar_voice.setProgress(currentVoice);
         mSeekbar_voice.setMax(maxVoice);
 
+        //得到屏幕的宽和高最新方式
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        screenWidth = displayMetrics.widthPixels;
+        screenHeight = displayMetrics.heightPixels;
+
         detector=new GestureDetector(this,new GestureDetector.SimpleOnGestureListener(){
             //长按事件
             @Override
@@ -211,16 +221,16 @@ public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPrepar
                 //设置视频大小
                 //设置按钮的状态
                 isFullScreen=true;
-                video_view.setVideoSize(MyApplication.screenWidth,MyApplication.screenHeight);
+                video_view.setVideoSize(screenWidth,screenHeight);
                 mBtn_video_switch_screen.setBackgroundResource(R.drawable.btn_video_siwch_screen_default_selector);
                 break;
             case DEFAULT_SCREEN:
                 int mVideoWidth=videoWidth;
                 int mVideoHeight=videoHeight;
 
-                int width=MyApplication.screenWidth;
-                int height=MyApplication.screenHeight;
-                if (mVideoWidth*width<height*mVideoHeight){
+                int width=screenWidth;
+                int height=screenHeight;
+                if (mVideoWidth*height<width*mVideoHeight){
                     width=height*mVideoWidth/mVideoHeight;
                 }else if (mVideoWidth*height>width*mVideoHeight){
                     height=width*mVideoHeight/mVideoWidth;
@@ -259,7 +269,7 @@ public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPrepar
                 //按下，记录值
                 startY=event.getY();
                 mVol=am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                touchRang=Math.min(MyApplication.screenWidth,MyApplication.screenHeight);
+                touchRang=Math.min(screenWidth,screenHeight);
                 handler.removeMessages(100);
                 break;
 
@@ -321,6 +331,7 @@ public class VitamioVideoPlayer extends Activity implements MediaPlayer.OnPrepar
 
     @Override
     protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);
         if (receiver!=null){
             unregisterReceiver(receiver);
             receiver=null;

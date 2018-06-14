@@ -6,7 +6,7 @@ package com.example.pgg.mobilevideo321.constant;
 
 public interface Constant {
 
-    String NET_VEDIO_ADDRESS="http://api.m.mtime.cn/PageSubArea/TrailerList.api";
+    String NET_VEDIO_ADDRESS="http://api.m.mtime.cn/PageSubArea/";
 
     String TAG_EXIT = "TAG_EXIT";
     String FIRST_OPEN = "first_open";
@@ -14,4 +14,5 @@ public interface Constant {
     int VIDEOFRAGMENT_CATEGORYACTIVITY_REQUESTCODE = 0x0001;
     int VIDEOFRAGMENT_CATEGORYACTIVITY_RESULTCODE = 0x0010;
 
+    String PLAY_MODE = "play_mode";
 }

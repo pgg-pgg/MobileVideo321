@@ -132,7 +132,7 @@ public class MainActivity extends BaseActivity {
             rb_net_video.setSelected(true);
         }
         if (netVideoFragment==null){
-            netVideoFragment=NetVideoFragment.newInstance(this);
+            netVideoFragment=new NetVideoFragment();
             addFragment(R.id.fl_main_content,netVideoFragment,NET_VIDEO_FRAGMENT);
         }else if (isRestart=true){
             isRestart=false;
@@ -147,7 +147,7 @@ public class MainActivity extends BaseActivity {
             rb_audio.setSelected(true);
         }
         if (audioFragment==null){
-            audioFragment=AudioFragment.newInstance(this);
+            audioFragment=new AudioFragment();
             addFragment(R.id.fl_main_content,audioFragment,AUDIO_FRAGMENT);
         }else if (isRestart=true){
             isRestart=false;
@@ -166,7 +166,7 @@ public class MainActivity extends BaseActivity {
         }
         if (videoFragment==null){
             Logger.e("恢复状态："+"null");
-            videoFragment=new VideoFragment().newInstance();
+            videoFragment=new VideoFragment();
             addFragment(R.id.fl_main_content,videoFragment,VIDEO_FRAGMENT);
         }else if (isRestart=true){
             isRestart=false;

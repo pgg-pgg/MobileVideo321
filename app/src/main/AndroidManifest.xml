@@ -85,6 +85,15 @@
             android:theme="@style/noAnimation_Theme"
             android:configChanges="keyboardHidden|screenSize|orientation"/>
 
+        <activity android:name=".activity.AudioPlayerActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
+        <service android:name=".service.MusicPlayerService">
+            <intent-filter>
+                <action android:name="com.example.pgg.mobilevideo321_OPENAUDIO"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

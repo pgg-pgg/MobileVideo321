@@ -23,11 +23,13 @@ import java.util.List;
 public class VideoFragmentAdapter extends BaseAdapter {
 
     List<MediaItem> mediaItems;
+    boolean isVideo;
 
     Context context;
-    public VideoFragmentAdapter(Context context, List<MediaItem> mediaItems) {
+    public VideoFragmentAdapter(Context context, List<MediaItem> mediaItems,boolean isVideo) {
         this.mediaItems=mediaItems;
         this.context=context;
+        this.isVideo=isVideo;
     }
 
     @Override
@@ -64,6 +66,9 @@ public class VideoFragmentAdapter extends BaseAdapter {
         holder.tv_name.setText(mediaItem.getName());
         holder.tv_time.setText(TimeUtils.stringForTime((int) mediaItem.getDuration()));
         holder.tv_size.setText(Formatter.formatFileSize(context,mediaItem.getSize()));
+        if (!isVideo){
+            holder.iv_icon.setImageResource(R.drawable.music_default_bg);
+        }
         return convertView;
     }
 

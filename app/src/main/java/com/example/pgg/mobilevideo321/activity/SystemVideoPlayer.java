@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -36,6 +37,8 @@ import com.example.pgg.mobilevideo321.widget.MyVideoView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import io.vov.vitamio.utils.Log;
 
 /**
  * Created by pgg on 18-6-12.
@@ -93,6 +96,8 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
     private LinearLayout ll_loading;
     private long lastTotalRxBytes;
     private long lastTimeStamp;
+    private int screenWidth=0;
+    private int screenHeight=0;
 
     // End Of Content View Elements
 
@@ -167,6 +172,12 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
         mSeekbar_voice.setProgress(currentVoice);
         mSeekbar_voice.setMax(maxVoice);
 
+        //得到屏幕的宽和高最新方式
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        screenWidth = displayMetrics.widthPixels;
+        screenHeight = displayMetrics.heightPixels;
+
         detector=new GestureDetector(this,new GestureDetector.SimpleOnGestureListener(){
             //长按事件
             @Override
@@ -209,16 +220,16 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
                 //设置视频大小
                 //设置按钮的状态
                 isFullScreen=true;
-                video_view.setVideoSize(MyApplication.screenWidth,MyApplication.screenHeight);
+                video_view.setVideoSize(screenWidth,screenHeight);
                 mBtn_video_switch_screen.setBackgroundResource(R.drawable.btn_video_siwch_screen_default_selector);
                 break;
             case DEFAULT_SCREEN:
                 int mVideoWidth=videoWidth;
                 int mVideoHeight=videoHeight;
 
-                int width=MyApplication.screenWidth;
-                int height=MyApplication.screenHeight;
-                if (mVideoWidth*width<height*mVideoHeight){
+                int width=screenWidth;
+                int height=screenHeight;
+                if (mVideoWidth*height<width*mVideoHeight){
                     width=height*mVideoWidth/mVideoHeight;
                 }else if (mVideoWidth*height>width*mVideoHeight){
                     height=width*mVideoHeight/mVideoWidth;
@@ -257,7 +268,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
                 //按下，记录值
                 startY=event.getY();
                 mVol=am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                touchRang=Math.min(MyApplication.screenWidth,MyApplication.screenHeight);
+                touchRang=Math.min(screenWidth,screenHeight);
                 handler.removeMessages(100);
                 break;
 
@@ -319,6 +330,7 @@ public class SystemVideoPlayer extends Activity implements MediaPlayer.OnPrepare
 
     @Override
     protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);
         if (receiver!=null){
             unregisterReceiver(receiver);
             receiver=null;

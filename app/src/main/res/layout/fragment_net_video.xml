@@ -1,12 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <com.example.pgg.mobilevideo321.widget.xListView.XListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="3"
-        android:textSize="40sp"/>
+        android:id="@+id/lv_net_video">
+    </com.example.pgg.mobilevideo321.widget.xListView.XListView>
 
-</LinearLayout>
+    <include
+        android:id="@+id/empty_view"
+        layout="@layout/empty_view"
+        android:visibility="gone"/>
+
+    <include layout="@layout/error_view"
+        android:id="@+id/error_view"
+        android:visibility="gone"/>
+
+
+    <include android:id="@+id/loading_view"
+        layout="@layout/loading_view"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fb_video"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:src="@drawable/backtop"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"
+        android:visibility="gone"/>
+
+</RelativeLayout>

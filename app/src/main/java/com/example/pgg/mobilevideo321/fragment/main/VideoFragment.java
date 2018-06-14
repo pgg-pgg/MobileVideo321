@@ -47,11 +47,6 @@ public class VideoFragment extends BaseFragment implements AdapterView.OnItemCli
     @BindView(R.id.loading_view)
     View loading_view;
 
-    public VideoFragment newInstance(){
-        VideoFragment fragment=new VideoFragment();
-        return fragment;
-    }
-
     @Override
     public int getLayoutRes() {
         return R.layout.fragment_video;
@@ -72,7 +67,7 @@ public class VideoFragment extends BaseFragment implements AdapterView.OnItemCli
                 Log.e("sdadsadsda","获取到数据");
                 empty_view.setVisibility(View.GONE);
                 fb_video.setVisibility(View.VISIBLE);
-                adapter=new VideoFragmentAdapter(getActivity(),mediaItems);
+                adapter=new VideoFragmentAdapter(getActivity(),mediaItems,true);
                 lv_video.setAdapter(adapter);
 
             }else {

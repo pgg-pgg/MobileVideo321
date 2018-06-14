@@ -2,8 +2,10 @@ package com.example.pgg.mobilevideo321.global;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.util.DisplayMetrics;
 
+import com.example.pgg.mobilevideo321.BuildConfig;
 import com.example.pgg.mobilevideo321.activity.MainActivity;
 
 /**

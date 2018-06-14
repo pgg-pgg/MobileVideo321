@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/base_bg">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_icon"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/now_playing_matrix_01"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:layout_centerHorizontal="true"
+            android:text="张学友"
+            android:layout_marginTop="60dp"
+            android:id="@+id/tv_artist"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:layout_centerHorizontal="true"
+            android:text="吻别"
+            android:layout_marginTop="80dp"
+            android:id="@+id/tv_name" />
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:layout_gravity="right"
+            android:textSize="14sp"
+            android:textColor="#fff"
+            android:id="@+id/tv_time"
+            android:layout_marginRight="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00/05:09"/>
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekbar_audio"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:maxHeight="6dp"
+            android:minHeight="6dp"
+            android:progressDrawable="@drawable/audio_progress_horizontal"
+            android:thumb="@drawable/seek_thumb"/>
+
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/btn_audio_play_mode"
+                android:background="@drawable/btn_audio_playmode_normal_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/btn_audio_pre"
+                android:background="@drawable/btn_audio_pre_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/btn_audio_start_pause"
+                android:background="@drawable/btn_audio_pause_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/btn_audio_next"
+                android:background="@drawable/btn_audio_next_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/btn_lyrc"
+                android:background="@drawable/btn_lyrc_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
