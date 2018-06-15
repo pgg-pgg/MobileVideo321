@@ -5,15 +5,15 @@
     android:background="@drawable/base_bg">
 
     <RelativeLayout
+        android:id="@+id/rl_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/iv_icon"
+        <com.example.pgg.mobilevideo321.widget.BaseVisualizerView
             android:layout_centerHorizontal="true"
-            android:src="@drawable/now_playing_matrix_01"/>
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:id="@+id/base_vis"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -22,7 +22,7 @@
             android:textSize="14sp"
             android:layout_centerHorizontal="true"
             android:text="张学友"
-            android:layout_marginTop="60dp"
+            android:layout_below="@id/base_vis"
             android:id="@+id/tv_artist"/>
 
         <TextView
@@ -32,12 +32,13 @@
             android:textSize="14sp"
             android:layout_centerHorizontal="true"
             android:text="吻别"
-            android:layout_marginTop="80dp"
+            android:layout_below="@id/tv_artist"
             android:id="@+id/tv_name" />
     </RelativeLayout>
 
 
     <LinearLayout
+        android:id="@+id/ll_bottom"
         android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -90,7 +91,7 @@
             <Button
                 android:layout_weight="1"
                 android:id="@+id/btn_audio_start_pause"
-                android:background="@drawable/btn_audio_pause_selector"
+                android:background="@drawable/btn_audio_start_selector"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -111,4 +112,13 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
     </LinearLayout>
+
+    <com.example.pgg.mobilevideo321.widget.ShowLyricView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:id="@+id/tv_lyric"
+        android:layout_below="@id/rl_top"
+        android:layout_above="@id/ll_bottom"/>
 </RelativeLayout>

@@ -76,4 +76,7 @@ interface IMusicPlayService {
         boolean isPlaying();
 
         void seekTo(int position);
+
+
+        int getAudioSessionId();
 }

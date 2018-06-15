@@ -100,6 +100,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        if (intent==null){
+            manager.cancelAll();
+        }
         return stub;
     }
 
@@ -180,6 +183,11 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         public void seekTo(int position) throws RemoteException {
             service.seekTo(position);
         }
+
+        @Override
+        public int getAudioSessionId() throws RemoteException {
+            return mediaPlayer.getAudioSessionId();
+        }
     };
 
     private void seekTo(int position) {
@@ -247,6 +255,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
      */
     private void pause(){
         mediaPlayer.pause();
+        manager.cancel(1);
     }
 
     /**
@@ -255,6 +264,12 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private void stop(){
         mediaPlayer.stop();
         manager.cancel(1);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        manager.cancelAll();
+        super.onTaskRemoved(rootIntent);
     }
 
     /**
@@ -291,7 +306,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
      * @return
      */
     private String getAudioPath(){
-        return  mediaItem.getData();
+        return mediaItem.getData();
     }
 
     /**

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.audiofx.Visualizer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,8 +24,13 @@ import com.example.pgg.mobilevideo321.IMusicPlayService;
 import com.example.pgg.mobilevideo321.R;
 import com.example.pgg.mobilevideo321.base.BaseActivity;
 import com.example.pgg.mobilevideo321.service.MusicPlayerService;
+import com.example.pgg.mobilevideo321.utils.LyricUtils;
 import com.example.pgg.mobilevideo321.utils.StateBarTranslucentUtils;
 import com.example.pgg.mobilevideo321.utils.TimeUtils;
+import com.example.pgg.mobilevideo321.widget.BaseVisualizerView;
+import com.example.pgg.mobilevideo321.widget.ShowLyricView;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -37,9 +43,11 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
 
 
     public static final int PROGRESS=1;
+    private static final int SHOW_LYRIC = 2;
     private int position;
-    @BindView(R.id.iv_icon)
-    ImageView iv_icon;
+
+    @BindView(R.id.base_vis)
+    BaseVisualizerView base_vis;
 
     @BindView(R.id.btn_audio_start_pause)
     Button btn_audio_start_pause;
@@ -68,6 +76,9 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
     @BindView(R.id.tv_name)
     TextView tv_name;
 
+    @BindView(R.id.tv_lyric)
+    ShowLyricView tv_lyric;
+
     private IMusicPlayService service;
 
 
@@ -76,6 +87,22 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what){
+                case SHOW_LYRIC:
+                    try {
+                        //1得到当前播放进度
+                        int currentPosition=service.getCurrentPosition();
+                        //2把进度传入
+                        tv_lyric.setShowNextLyric(currentPosition);
+                        //3实时发送
+                        removeMessages(SHOW_LYRIC);
+                        sendEmptyMessage(SHOW_LYRIC);
+
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    break;
                 case PROGRESS:
                     //得到当前进度
                     try {
@@ -135,16 +162,35 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
     @Override
     public void initView(Bundle savedInstanceState) {
 
-        iv_icon.setBackgroundResource(R.drawable.animation_list);
-        AnimationDrawable rockerAnimation= (AnimationDrawable) iv_icon.getBackground();
-        rockerAnimation.start();
-
         getData();
 
         bindAndStartService();
         initData();
 
         seekbar_audio.setOnSeekBarChangeListener(this);
+
+    }
+
+    private Visualizer mVisualizer;
+
+    /**
+     * 生成一个VisualizerView对象，使音频频谱的波段能够反映到 VisualizerView上
+     */
+    private void setupVisualizerFxAndUi() {
+
+        int audioSessionid = 0;
+        try {
+            audioSessionid = service.getAudioSessionId();
+            System.out.println("audioSessionid=="+audioSessionid);
+            mVisualizer = new Visualizer(audioSessionid);
+            // 参数内必须是2的位数
+            mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+            // 设置允许波形表示，并且捕获它
+            base_vis.setVisualizer(mVisualizer);
+            mVisualizer.setEnabled(true);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -180,8 +226,41 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
     class MyReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            checkPlayMode();
+            //开始歌词同步
+            showLyric();
             showViewData();
+            checkPlayMode();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mVisualizer!=null){
+            mVisualizer.release();
+        }
+    }
+
+    private void showLyric(){
+        LyricUtils lyricUtils=new LyricUtils();
+
+        //传歌词文件
+        try {
+            String path=service.getAudioPath();
+
+            path=path.substring(0,path.lastIndexOf("."));
+            File file=new File(path+".lrc");
+            if (!file.exists()){
+                file=new File(path+".txt");
+            }
+            lyricUtils.readLyricFile(file);
+            tv_lyric.setLyrics(lyricUtils.getLyrics());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        if (lyricUtils.isExistsLyric()){
+            handler.sendEmptyMessage(SHOW_LYRIC);
         }
     }
 
@@ -191,6 +270,8 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
             tv_name.setText(service.getName());
             //设置进度条的最大值
             seekbar_audio.setMax(service.getDuration());
+            checkPlayMode();
+            setupVisualizerFxAndUi();
 
             handler.sendEmptyMessage(PROGRESS);
         } catch (RemoteException e) {
@@ -233,11 +314,11 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
                         if (service.isPlaying()){
                             //暂停
                             service.pause();
-                            btn_audio_start_pause.setBackgroundResource(R.drawable.btn_audio_start_selector);
+                            btn_audio_start_pause.setBackgroundResource(R.drawable.btn_audio_pause_selector);
                         }else {
                             //播放
                             service.start();
-                            btn_audio_start_pause.setBackgroundResource(R.drawable.btn_audio_pause_selector);
+                            btn_audio_start_pause.setBackgroundResource(R.drawable.btn_audio_start_selector);
                         }
                     } catch (RemoteException e) {
                         e.printStackTrace();
@@ -254,7 +335,11 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
                 }
                 break;
             case R.id.btn_lyrc:
-
+                if (tv_lyric.getVisibility()==View.VISIBLE){
+                    tv_lyric.setVisibility(View.GONE);
+                }else {
+                    tv_lyric.setVisibility(View.VISIBLE);
+                }
                 break;
         }
     }
@@ -320,8 +405,12 @@ public class AudioPlayerActivity extends BaseActivity implements SeekBar.OnSeekB
             }else {
                 btn_audio_play_mode.setBackgroundResource(R.drawable.btn_audio_playmode_normal_selector);
             }
-            //保存
-            service.setPlayMode(playMode);
+
+            if (service.isPlaying()){
+                btn_audio_start_pause.setBackgroundResource(R.drawable.btn_audio_start_selector);
+            }else {
+                btn_audio_start_pause.setBackgroundResource(R.drawable.btn_audio_pause_selector);
+            }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
