@@ -70,8 +70,7 @@ public class NetWork {
         };
     }
 
-    public static Interceptor provideCacheInterceptor ()
-    {
+    public static Interceptor provideCacheInterceptor () {
         return new Interceptor()
         {
             @Override

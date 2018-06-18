@@ -131,6 +131,7 @@ public class NetAudioFragment extends BaseFragment implements XListView.IXListVi
                         error_view.setVisibility(View.VISIBLE);
                         empty_view.setVisibility(View.GONE);
                         fb_audio.setVisibility(View.GONE);
+                        e.printStackTrace();
                     }
 
                     @Override

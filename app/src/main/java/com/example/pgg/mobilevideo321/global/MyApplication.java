@@ -9,6 +9,9 @@ import com.example.pgg.mobilevideo321.BuildConfig;
 import com.example.pgg.mobilevideo321.activity.MainActivity;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechUtility;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 /**
  * Created by pgg on 18-6-11.
@@ -38,10 +41,23 @@ public class MyApplication extends Application {
         mInstance = this;
         initScreenSize();
         SpeechUtility.createUtility(this, SpeechConstant.APPID +"=5b24c0f2");
+        initImageLoader(this);
     }
 
     public static Context getInstance() {
         return mInstance;
+    }
+
+    public static void initImageLoader(Context context) {
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+                context).threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .writeDebugLogs()
+                .build();
+
+        ImageLoader.getInstance().init(config);
     }
 
     /**
