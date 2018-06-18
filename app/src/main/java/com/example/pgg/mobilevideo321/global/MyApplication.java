@@ -7,6 +7,8 @@ import android.util.DisplayMetrics;
 
 import com.example.pgg.mobilevideo321.BuildConfig;
 import com.example.pgg.mobilevideo321.activity.MainActivity;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechUtility;
 
 /**
  * Created by pgg on 18-6-11.
@@ -35,6 +37,7 @@ public class MyApplication extends Application {
         super.onCreate();
         mInstance = this;
         initScreenSize();
+        SpeechUtility.createUtility(this, SpeechConstant.APPID +"=5b24c0f2");
     }
 
     public static Context getInstance() {

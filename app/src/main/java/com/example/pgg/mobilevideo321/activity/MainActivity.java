@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity {
             rb_net_audio.setSelected(true);
         }
         if (netAudioFragment==null){
-            netAudioFragment=NetAudioFragment.newInstance(this);
+            netAudioFragment=new NetAudioFragment();
             addFragment(R.id.fl_main_content,netAudioFragment,NET_AUDIO_FRAGMENT);
         }else if (isRestart==true){
             getFragmentTransaction().show(netAudioFragment).commit();

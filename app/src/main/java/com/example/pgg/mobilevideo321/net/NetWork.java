@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import com.example.pgg.mobilevideo321.constant.Constant;
 import com.example.pgg.mobilevideo321.global.MyApplication;
+import com.example.pgg.mobilevideo321.net.api.NetMusicApi;
 import com.example.pgg.mobilevideo321.net.api.NetVideoApi;
 import com.example.pgg.mobilevideo321.utils.MxxNetworkUtil;
 
@@ -31,6 +32,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetWork {
 
     private static NetVideoApi mNetVideoApi;
+    private static NetMusicApi mNetMusicApi;
+
 
 
     private static final long cacheSize = 1024 * 1024 * 20;//缓存文件大小
@@ -116,5 +119,18 @@ public class NetWork {
             mNetVideoApi=retrofit.create(NetVideoApi.class);
         }
         return mNetVideoApi;
+    }
+
+    public static NetMusicApi getmNetMusicApi(){
+        if (mNetMusicApi==null){
+            Retrofit retrofit=new Retrofit.Builder()
+                    .client(cacheClient)
+                    .baseUrl(Constant.ALL_RES_URL)
+                    .addCallAdapterFactory(rxJavaCallAdapterFactory)
+                    .addConverterFactory(gsonConverterFactory)
+                    .build();
+            mNetMusicApi=retrofit.create(NetMusicApi.class);
+        }
+        return mNetMusicApi;
     }
 }

@@ -8,6 +8,12 @@ public interface Constant {
 
     String NET_VEDIO_ADDRESS="http://api.m.mtime.cn/PageSubArea/";
 
+
+    /**
+     * 网络音乐
+     */
+    String ALL_RES_URL = "http://s.budejie.com/topic/list/jingxuan/1/budejie-android-6.2.8/";
+
     String TAG_EXIT = "TAG_EXIT";
     String FIRST_OPEN = "first_open";
 
